@@ -71,7 +71,7 @@
             const todayIndex = today.getDay();
             
             // List of weekdays in German
-            const weekdays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+            const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
 
             // Populate the weekday list in HTML
             const weekdayList = document.getElementById('weekdayList');
@@ -80,6 +80,9 @@
                 const weightText = params[day.toLowerCase()] ? params[day.toLowerCase()] + ' ml' : 'N/A';
                 li.textContent = day + ': ' + weightText;
                 li.classList.add('weekday-item');
+                if (index === todayIndex) {
+                    li.setAttribute('id', 'today');
+                }
                 weekdayList.appendChild(li);
             });
 
@@ -87,20 +90,21 @@
             document.getElementById('co2Snapshot').textContent = params.co2 || 'N/A ppm';
         }
 
-        // Function to add manual input to each weekday
+        // Function to add manual input to the current day
         function addManualInput() {
             const input = document.getElementById('manualInput');
             const value = parseFloat(input.value);
             if (!isNaN(value)) {
-                const items = document.querySelectorAll('#weekdayList .weekday-item');
-                items.forEach(item => {
-                    const day = item.textContent.split(':')[0].trim();
-                    const currentWeight = parseFloat(item.textContent.split(':')[1].trim().split(' ')[0]);
-                    if (!isNaN(currentWeight)) {
-                        const newValue = currentWeight + value;
-                        item.textContent = day + ': ' + newValue.toFixed(1) + ' ml';
-                    }
-                });
+                const todayItem = document.getElementById('today');
+                const day = todayItem.textContent.split(':')[0].trim();
+                const currentWeightText = todayItem.textContent.split(':')[1].trim();
+                const currentWeight = parseFloat(currentWeightText.split(' ')[0]);
+                if (!isNaN(currentWeight)) {
+                    const newValue = currentWeight + value;
+                    todayItem.textContent = day + ': ' + newValue.toFixed(1) + ' ml';
+                } else {
+                    todayItem.textContent = day + ': ' + value.toFixed(1) + ' ml';
+                }
                 input.value = ''; // Clear input field after adding
             } else {
                 alert('Bitte geben Sie eine gültige Zahl ein.');
