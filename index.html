@@ -68,7 +68,10 @@
             
             // Get current date to determine today's weekday
             const today = new Date();
-            const todayIndex = today.getDay();
+            let todayIndex = today.getDay();  // 0 = Sonntag, 1 = Montag, ..., 6 = Samstag
+
+            // Adjust todayIndex to match the German week (Montag = 0, ..., Sonntag = 6)
+            todayIndex = (todayIndex + 6) % 7;
             
             // List of weekdays in German
             const weekdays = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
