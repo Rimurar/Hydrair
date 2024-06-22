@@ -1,0 +1,113 @@
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydrair</title>
+    <style>
+        /* Einfaches CSS für die cyanfarbene Überschrift und den Container */
+        body {
+            padding: 20px;
+        }
+        h1 {
+            color: #00FFFF; /* Cyan Farbe für die Überschrift */
+            text-align: center; /* Zentrierung der Überschrift */
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .weekday-item {
+            margin-bottom: 10px;
+        }
+        .total-drink {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .manual-input-label {
+            margin-bottom: 5px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hydrair</h1>
+
+        <h3>So viel haben Sie getrunken:</h3>
+        <ul id="weekdayList">
+            <!-- Placeholder for weekdays -->
+        </ul>
+
+        <label for="manualInput" class="manual-input-label">Hier zusätzliche Getränke in [ml] eingeben:</label>
+        <div class="manual-input">
+            <input type="number" id="manualInput" name="manualInput" min="0" step="any">
+            <button onclick="addManualInput()">Hinzufügen</button>
+        </div>
+
+        <h2>Ihr CO2 Wert liegt bei:</h2>
+        <p id="co2Snapshot">N/A ppm</p>
+    </div>
+
+    <script>
+        // Function to parse URL parameters
+        function getUrlParams() {
+            const params = {};
+            const queryString = window.location.search.substring(1);
+            const pairs = queryString.split('&');
+            pairs.forEach(pair => {
+                const [key, value] = pair.split('=');
+                params[decodeURIComponent(key)] = decodeURIComponent(value);
+            });
+            return params;
+        }
+
+        // Function to update HTML elements with the parsed parameters
+        function updateData() {
+            const params = getUrlParams();
+            
+            // Get current date to determine today's weekday
+            const today = new Date();
+            const todayIndex = today.getDay();
+            
+            // List of weekdays in German
+            const weekdays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+
+            // Populate the weekday list in HTML
+            const weekdayList = document.getElementById('weekdayList');
+            weekdays.forEach((day, index) => {
+                const li = document.createElement('li');
+                const weightText = params[day.toLowerCase()] ? params[day.toLowerCase()] + ' ml' : 'N/A';
+                li.textContent = day + ': ' + weightText;
+                li.classList.add('weekday-item');
+                weekdayList.appendChild(li);
+            });
+
+            // Update CO2 snapshot
+            document.getElementById('co2Snapshot').textContent = params.co2 || 'N/A ppm';
+        }
+
+        // Function to add manual input to each weekday
+        function addManualInput() {
+            const input = document.getElementById('manualInput');
+            const value = parseFloat(input.value);
+            if (!isNaN(value)) {
+                const items = document.querySelectorAll('#weekdayList .weekday-item');
+                items.forEach(item => {
+                    const day = item.textContent.split(':')[0].trim();
+                    const currentWeight = parseFloat(item.textContent.split(':')[1].trim().split(' ')[0]);
+                    if (!isNaN(currentWeight)) {
+                        const newValue = currentWeight + value;
+                        item.textContent = day + ': ' + newValue.toFixed(1) + ' ml';
+                    }
+                });
+                input.value = ''; // Clear input field after adding
+            } else {
+                alert('Bitte geben Sie eine gültige Zahl ein.');
+            }
+        }
+
+        // Call the updateData function on page load
+        window.onload = updateData;
+    </script>
+</body>
+</html>
